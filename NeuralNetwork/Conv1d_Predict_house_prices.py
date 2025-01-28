@@ -289,6 +289,8 @@ Finally, predict some housing prices using data in the testing set:
 test_predictions = model_conv1D.predict(test_data_reshaped).flatten()
 plot_prediction(test_labels, test_predictions)
 
+model_conv1D.save("models/model_conv1D.keras")
+
 """## Observations
 
 So far, we implemented an ***MLP model*** and a ***Conv1D model*** to handle the "**Boston House Prices**" regression problem.
