@@ -16,6 +16,10 @@ import numpy as np
 print(tf.__version__)
 
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('TkAgg')
+
+
 def plot_history(history):
   plt.figure()
   plt.xlabel('Epoch')
@@ -26,6 +30,7 @@ def plot_history(history):
            label = 'Val')
   plt.legend()
   plt.ylim([0,max(history.history['val_mae'])])
+  plt.show()
 
 def plot_prediction(test_labels, test_predictions):
   plt.figure()
@@ -42,6 +47,7 @@ def plot_prediction(test_labels, test_predictions):
   plt.hist(error, bins = 50)
   plt.xlabel("Prediction Error [1000$]")
   _ = plt.ylabel("Count")
+  plt.show()
 
 """# Notice
 ***As a base model***, I will use the **TensorFlow official example** for ***MLP model*** and compare its performance with **my Conv1D model**. Thus, we will be able to observe the relative success of **Conv1D model** with respect to **a professional sample model**.
@@ -62,7 +68,6 @@ This [dataset](https://www.cs.toronto.edu/~delve/data/boston/bostonDetail.html) 
 """
 
 boston_housing = tf.keras.datasets.boston_housing
-
 (train_data, train_labels), (test_data, test_labels) = boston_housing.load_data()
 
 """### Examples and features
