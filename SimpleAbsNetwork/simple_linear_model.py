@@ -138,6 +138,7 @@ def training(model, SAMPLES=1000000):
 
     # save network
     model.save("models/SimpleLinearModel.keras")
+    model.save("models/SimpleLinearModel.h5")
 
     ###########################################################################
     # Test the network
