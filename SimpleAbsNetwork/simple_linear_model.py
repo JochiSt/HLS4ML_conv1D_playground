@@ -11,6 +11,10 @@ def setupModel():
     layer_cnt += 1
     x = tf.keras.layers.Activation("relu")(x)
 
+    x = tf.keras.layers.Dense(16, name="layer_%d" % (layer_cnt))(x)
+    layer_cnt += 1
+    x = tf.keras.layers.Activation("relu")(x)
+
     # final layer
     outputs = tf.keras.layers.Dense(1, name="output")(x)
 
