@@ -1,3 +1,20 @@
+# virtual environment
 HLSconv1Dplayground
+
+# stored models
 *.keras
 *.h5
+
+# python things
+__pycache__
+
+# plots etc.
+*.png
+
+# HLS4ML output
+firmware
+tb_data
+build_lib.sh
+*.tcl
+*.cpp
+hls4ml_config.yml
