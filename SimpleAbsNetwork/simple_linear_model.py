@@ -32,7 +32,7 @@ def generate_data(NSAMPLES=10000):
     # Generate some random samples
     x_values = np.random.uniform(low=-1, high=1, size=NSAMPLES)
 
-    y_values = np.abs(x_values)
+    y_values = np.abs(x_values) + np.random.normal(loc = 0, scale=0.05, size=len(x_values))
     return x_values, y_values
 
 
