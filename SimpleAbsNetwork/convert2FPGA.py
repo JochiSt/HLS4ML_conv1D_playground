@@ -17,6 +17,10 @@ import matplotlib.pyplot as plt
 # use the already trained model
 from tensorflow.keras.models import load_model
 
+################################################################################
+profiling_plots = False
+################################################################################
+
 model = load_model("models/SimpleLinearModel.h5")
 
 # create configuration for each layer
@@ -37,9 +41,19 @@ from hls4ml.model.profiling import numerical, get_ymodel_keras
 for layer in config['LayerName'].keys():
     config['LayerName'][layer]['Trace'] = True
     
+config['Model']['TraceOutput'] = True
+    
 ################################################################################
 # change the configuration and adapt bitwidth
 config['LayerName']['layer_0']['Precision']['weight'] = 'ap_fixed<8,4>'
+config['LayerName']['layer_1']['Precision']['weight'] = 'ap_fixed<8,4>'
+config['LayerName']['activation']['Precision']['result'] = 'ap_fixed<8,4>'
+config['LayerName']['activation']['TableSize'] = 512
+    
+
+print("-----------------------------------")
+print_dict(config)
+print("-----------------------------------")
     
 ################################################################################
 # convert model to HLS one
@@ -57,11 +71,38 @@ y_hls = hls_model.predict(x_test)
 # have a look at the differences between the layers (see, where we have the most
 # impact of the quantisation)
 differences = {}
+max_params = 0
 for layer in hls4ml_trace.keys():
     print(layer, len(hls4ml_trace[layer]))
     difference = hls4ml_trace[layer] - keras_trace[layer]
     print( np.mean( difference, axis=0) )
     differences[layer] = np.mean(difference, axis=0)
+    
+    print(differences[layer].size)
+    
+    max_params = max(max_params, differences[layer].size )
+
+
+difference_array = np.full(( len(differences.keys()), max_params ), np.nan)
+for i, layer in enumerate(differences.keys()):
+    for j,value in enumerate(differences[layer]):
+        difference_array[i][j] = value
+    
+fig = plt.figure(figsize=(6, 3.2))
+
+ax = fig.add_subplot(111)
+ax.set_title('colorMap')
+
+plt.imshow(difference_array, interpolation = 'none')
+#ax.set_aspect('equal')
+cax = fig.add_axes([0.12, 0.1, 0.78, 0.8])
+cax.get_xaxis().set_visible(False)
+cax.get_yaxis().set_visible(False)
+cax.patch.set_alpha(0)
+cax.set_frame_on(False)
+plt.colorbar(orientation='vertical')
+plt.show()
+
 
 if profiling_plots:
     plots = numerical(
