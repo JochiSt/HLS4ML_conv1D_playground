@@ -63,12 +63,17 @@ config['LayerName']['output']['Precision']['bias'] = 'ap_fixed<8,2>'
 print("-----------------------------------")
 print_dict(config)
 print("-----------------------------------")
-    
+
+cfg_q = hls4ml.converters.create_config(backend='Vitis')
+cfg_q['IOType'] = 'io_stream'  # Must set this if using CNNs!
+cfg_q['HLSConfig'] = config
+cfg_q['KerasModel'] = model
+cfg_q['OutputDir'] = 'model_1/'
+cfg_q['XilinxPart'] = 'xcu250-figd2104-2L-e'
+
 ################################################################################
 # convert model to HLS one
-hls_model = hls4ml.converters.convert_from_keras_model(
-    model, hls_config=config, output_dir='model_1/hls4ml_prj_2', part='xcu250-figd2104-2L-e'
-)
+hls_model = hls4ml.converters.keras_to_hls(cfg_q)
 
 ################################################################################
 # evaluate the performance of the neural network
