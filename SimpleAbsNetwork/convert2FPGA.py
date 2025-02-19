@@ -37,10 +37,17 @@ from hls4ml.model.profiling import numerical, get_ymodel_keras
 for layer in config['LayerName'].keys():
     config['LayerName'][layer]['Trace'] = True
     
+################################################################################
+# change the configuration and adapt bitwidth
+config['LayerName']['layer_0']['Precision']['weight'] = 'ap_fixed<8,4>'
+    
+################################################################################
+# convert model to HLS one
 hls_model = hls4ml.converters.convert_from_keras_model(
     model, hls_config=config, output_dir='model_1/hls4ml_prj_2', part='xcu250-figd2104-2L-e'
 )
 
+################################################################################
 # evaluate the performance of the neural network
 hls_model.compile()
 hls4ml_pred, hls4ml_trace = hls_model.trace(x_test[:1000])
