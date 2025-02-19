@@ -100,7 +100,7 @@ for i, layer in enumerate(differences.keys()):
     for j,value in enumerate(differences[layer]):
         difference_array[i][j] = value
     
-fig = plt.figure(figsize=(6, 3.2))
+fig = plt.figure()
 
 ax = fig.add_subplot(111)
 ax.set_title('colorMap')
