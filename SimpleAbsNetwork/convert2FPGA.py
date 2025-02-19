@@ -45,11 +45,20 @@ config['Model']['TraceOutput'] = True
     
 ################################################################################
 # change the configuration and adapt bitwidth
-config['LayerName']['layer_0']['Precision']['weight'] = 'ap_fixed<8,4>'
-config['LayerName']['layer_1']['Precision']['weight'] = 'ap_fixed<8,4>'
-config['LayerName']['activation']['Precision']['result'] = 'ap_fixed<8,4>'
-config['LayerName']['activation']['TableSize'] = 512
-    
+config['LayerName']['layer_0']['Precision']['weight'] = 'ap_fixed<8,2>'
+config['LayerName']['layer_0']['Precision']['bias'] = 'ap_fixed<8,2>'
+
+config['LayerName']['activation']['Precision']['result'] = 'ap_fixed<8,2>'
+config['LayerName']['activation']['TableSize'] = 0
+
+config['LayerName']['layer_1']['Precision']['weight'] = 'ap_fixed<8,2>'
+config['LayerName']['layer_1']['Precision']['bias'] = 'ap_fixed<8,2>'
+
+config['LayerName']['activation_1']['Precision']['result'] = 'ap_fixed<8,2>'
+config['LayerName']['activation_1']['TableSize'] = 0
+
+config['LayerName']['output']['Precision']['weight'] = 'ap_fixed<8,2>'
+config['LayerName']['output']['Precision']['bias'] = 'ap_fixed<8,2>'
 
 print("-----------------------------------")
 print_dict(config)
