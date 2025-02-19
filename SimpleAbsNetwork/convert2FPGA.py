@@ -103,18 +103,24 @@ for i, layer in enumerate(differences.keys()):
 fig = plt.figure()
 
 ax = fig.add_subplot(111)
-ax.set_title('colorMap')
+ax.set_title('HLS - Keras (%s)'%(model.name))
 
-plt.imshow(difference_array, interpolation = 'none')
-#ax.set_aspect('equal')
-cax = fig.add_axes([0.12, 0.1, 0.78, 0.8])
-cax.get_xaxis().set_visible(False)
-cax.get_yaxis().set_visible(False)
-cax.patch.set_alpha(0)
-cax.set_frame_on(False)
-plt.colorbar(orientation='vertical')
+from matplotlib import ticker
+ax.xaxis.set_major_locator(ticker.MultipleLocator(1))
+ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
+
+# set proper Y labels
+ax.set_yticks(np.arange(len(hls4ml_trace.keys())))
+ax.set_yticklabels( list(hls4ml_trace.keys()) )
+
+absolute_maximum = max( abs(np.min(difference_array)), np.max(difference_array) )
+
+from matplotlib.colors import Normalize
+from matplotlib import cm
+norm = Normalize(vmin=-1*absolute_maximum, vmax=absolute_maximum)
+plt.imshow(difference_array, interpolation = 'none', cmap="seismic", norm=norm)
+plt.colorbar(cm.ScalarMappable(norm=norm, cmap="seismic"), ax=ax)
 plt.show()
-
 
 if profiling_plots:
     plots = numerical(
