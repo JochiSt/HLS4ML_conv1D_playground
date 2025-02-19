@@ -47,18 +47,22 @@ hls4ml_pred, hls4ml_trace = hls_model.trace(x_test[:1000])
 keras_trace = get_ymodel_keras(model, x_test[:1000])
 y_hls = hls_model.predict(x_test)
 
-print("Keras layer 'layer_1', first sample:")
-print(keras_trace['layer_1'][0])
-print("hls4ml layer 'layer_1', first sample:")
-print(hls4ml_trace['layer_1'][0])
+# have a look at the differences between the layers (see, where we have the most
+# impact of the quantisation)
+differences = {}
+for layer in hls4ml_trace.keys():
+    print(layer, len(hls4ml_trace[layer]))
+    difference = hls4ml_trace[layer] - keras_trace[layer]
+    print( np.mean( difference, axis=0) )
+    differences[layer] = np.mean(difference, axis=0)
 
-
-plots = numerical(
-    model=model,            # Keras model
-    hls_model=hls_model,    # HLS model
-    X=x_test                # test data
-    )
-plt.show()
+if profiling_plots:
+    plots = numerical(
+        model=model,            # Keras model
+        hls_model=hls_model,    # HLS model
+        X=x_test                # test data
+        )
+    plt.show()
 
 hls4ml.utils.plot_model(hls_model, show_shapes=True, show_precision=True, to_file="plots/HLSmodel.png")
 
