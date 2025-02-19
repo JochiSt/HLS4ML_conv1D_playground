@@ -91,9 +91,7 @@ for layer in hls4ml_trace.keys():
     difference = hls4ml_trace[layer] - keras_trace[layer]
     print( np.mean( difference, axis=0) )
     differences[layer] = np.mean(difference, axis=0)
-    
-    print(differences[layer].size)
-    
+        
     max_params = max(max_params, differences[layer].size )
 
 
