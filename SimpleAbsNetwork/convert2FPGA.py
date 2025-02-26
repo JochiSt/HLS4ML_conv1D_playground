@@ -45,20 +45,21 @@ config['Model']['TraceOutput'] = True
     
 ################################################################################
 # change the configuration and adapt bitwidth
-config['LayerName']['layer_0']['Precision']['weight'] = 'ap_fixed<8,2>'
-config['LayerName']['layer_0']['Precision']['bias'] = 'ap_fixed<8,2>'
+config['LayerName']['layer_0']['Precision']['weight'] = 'ap_fixed<10,2>'
+config['LayerName']['layer_0']['Precision']['bias'] =   'ap_fixed<10,2>'
 
-config['LayerName']['activation']['Precision']['result'] = 'ap_fixed<8,2>'
+config['LayerName']['activation']['Precision']['result'] = 'ap_fixed<10,2>'
 config['LayerName']['activation']['TableSize'] = 0
 
-config['LayerName']['layer_1']['Precision']['weight'] = 'ap_fixed<8,2>'
-config['LayerName']['layer_1']['Precision']['bias'] = 'ap_fixed<8,2>'
+config['LayerName']['layer_1']['Precision']['weight'] = 'ap_fixed<10,2>'
+config['LayerName']['layer_1']['Precision']['bias'] =   'ap_fixed<10,2>'
 
-config['LayerName']['activation_1']['Precision']['result'] = 'ap_fixed<8,2>'
+config['LayerName']['activation_1']['Precision']['result'] = 'ap_fixed<10,2>'
+config['LayerName']['activation_1']['Precision']['table'] = 'ap_fixed<0,0>'
 config['LayerName']['activation_1']['TableSize'] = 0
 
-config['LayerName']['output']['Precision']['weight'] = 'ap_fixed<8,2>'
-config['LayerName']['output']['Precision']['bias'] = 'ap_fixed<8,2>'
+config['LayerName']['output']['Precision']['weight'] = 'ap_fixed<10,2>'
+config['LayerName']['output']['Precision']['bias'] = 'ap_fixed<10,2>'
 
 print("-----------------------------------")
 print_dict(config)
@@ -86,22 +87,23 @@ y_hls = hls_model.predict(x_test)
 # impact of the quantisation)
 differences = {}
 max_params = 0
+print("Calculating Differences ...")
 for layer in hls4ml_trace.keys():
-    print(layer, len(hls4ml_trace[layer]))
+    print(layer, len(hls4ml_trace[layer]), "outputs")
     difference = hls4ml_trace[layer] - keras_trace[layer]
-    print( np.mean( difference, axis=0) )
     differences[layer] = np.mean(difference, axis=0)
-        
+    
+    # keep maximal number of outputs / parameters in mind
     max_params = max(max_params, differences[layer].size )
 
-
+# create empty array, which is filled with the differences in the next step
 difference_array = np.full(( len(differences.keys()), max_params ), np.nan)
 for i, layer in enumerate(differences.keys()):
     for j,value in enumerate(differences[layer]):
         difference_array[i][j] = value
     
+################################################################################
 fig = plt.figure()
-
 ax = fig.add_subplot(111)
 ax.set_title('HLS - Keras (%s)'%(model.name))
 
@@ -113,14 +115,18 @@ ax.yaxis.set_major_locator(ticker.MultipleLocator(1))
 ax.set_yticks(np.arange(len(hls4ml_trace.keys())))
 ax.set_yticklabels( list(hls4ml_trace.keys()) )
 
-absolute_maximum = max( abs(np.min(difference_array)), np.max(difference_array) )
-
+absolute_maximum = max( abs(np.nanmin(difference_array)), np.nanmax(difference_array) )
+print( abs(np.nanmin(difference_array)), np.nanmax(difference_array) )
 from matplotlib.colors import Normalize
 from matplotlib import cm
 norm = Normalize(vmin=-1*absolute_maximum, vmax=absolute_maximum)
 plt.imshow(difference_array, interpolation = 'none', cmap="seismic", norm=norm)
-plt.colorbar(cm.ScalarMappable(norm=norm, cmap="seismic"), ax=ax)
+cb = plt.colorbar(cm.ScalarMappable(norm=norm, cmap="seismic"), ax=ax)
+cb.ax.axhline(np.nanmin(difference_array), c='g')
+cb.ax.axhline(np.nanmax(difference_array), c='g')
 plt.show()
+
+################################################################################
 
 if profiling_plots:
     plots = numerical(
