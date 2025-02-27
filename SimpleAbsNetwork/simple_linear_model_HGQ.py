@@ -8,19 +8,19 @@ from HGQ import ResetMinMax, FreeBOPs
  
 def setupModel():
     inputs = tf.keras.Input(shape=(1,), name="datainput")
-    x = HQuantize(beta=1.e-5)(inputs)
+    x = HQuantize(beta=1.e-7)(inputs)
     layer_cnt = 0
 
-    x = HDense(16, beta=1.e-5, activation='relu', name="layer_%d" % (layer_cnt))(x)
+    x = HDense(16, beta=1.e-7, activation='relu', name="layer_%d" % (layer_cnt))(x)
     layer_cnt += 1
 
-    x = HDense(16, beta=1.e-5, activation='relu', name="layer_%d" % (layer_cnt))(x)
+    x = HDense(16, beta=1.e-7, activation='relu', name="layer_%d" % (layer_cnt))(x)
     layer_cnt += 1
 
     # final layer
-    outputs = HDense(1, beta=1.e-5, name="output")(x)
+    outputs = HDense(1, beta=1.e-7, name="output")(x)
 
-    model = tf.keras.Model(inputs=inputs, outputs=outputs, name="SimpleLinearStream")
+    model = tf.keras.Model(inputs=inputs, outputs=outputs, name="SimpleLinearStream_HGQ")
     model.summary()
 
     # Compile the model using the standard 'adam' optimizer and
@@ -144,7 +144,7 @@ def training(model, SAMPLES=1000000):
 
     from HGQ import trace_minmax, to_proxy_model
 
-    trace_minmax(model, x_train, cover_factor=1.0)
+    trace_minmax(model, x_train, verbose=True, cover_factor=1.0)
     proxy = to_proxy_model(model, aggressive=True)
 
     # save network
