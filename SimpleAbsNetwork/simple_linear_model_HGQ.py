@@ -21,17 +21,17 @@ def setupModel():
     set_default_kq_conf(kq_conf)
     
     inputs = tf.keras.Input(shape=(1,), name="datainput")
-    x = HQuantize(beta=1.e-7)(inputs)
+    x = HQuantize(beta=1.e-8)(inputs)
     layer_cnt = 0
 
-    x = HDense(16, beta=1.e-7, activation='relu', name="layer_%d" % (layer_cnt))(x)
+    x = HDense(16, beta=1.e-8, activation='relu', name="layer_%d" % (layer_cnt))(x)
     layer_cnt += 1
 
-    x = HDense(16, beta=1.e-7, activation='relu', name="layer_%d" % (layer_cnt))(x)
+    x = HDense(16, beta=1.e-8, activation='relu', name="layer_%d" % (layer_cnt))(x)
     layer_cnt += 1
 
     # final layer
-    outputs = HDense(1, beta=1.e-7, name="output")(x)
+    outputs = HDense(1, beta=1.e-8, name="output")(x)
 
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name="SimpleLinearStream_HGQ")
     model.summary()
