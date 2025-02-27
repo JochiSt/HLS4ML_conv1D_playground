@@ -5,8 +5,21 @@ import matplotlib.pyplot as plt
 import keras
 from HGQ.layers import HDense, HDenseBatchNorm, HQuantize
 from HGQ import ResetMinMax, FreeBOPs
+from HGQ import get_default_kq_conf, get_default_paq_conf, set_default_kq_conf, set_default_paq_conf
  
 def setupModel():
+    
+    paq_conf = get_default_paq_conf()
+    paq_conf['skip_dims'] = 'all'
+    paq_conf['rnd_strategy'] = 'fast_uniform_noise_injection'
+    paq_conf['init_bw'] = 10
+
+    set_default_paq_conf(paq_conf)
+
+    kq_conf = get_default_kq_conf()
+    kq_conf['init_bw'] = 8
+    set_default_kq_conf(kq_conf)
+    
     inputs = tf.keras.Input(shape=(1,), name="datainput")
     x = HQuantize(beta=1.e-7)(inputs)
     layer_cnt = 0
