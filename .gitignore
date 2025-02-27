@@ -18,3 +18,5 @@ build_lib.sh
 *.tcl
 *.cpp
 hls4ml_config.yml
+
+model_?
