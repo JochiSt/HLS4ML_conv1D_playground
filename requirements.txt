@@ -18,7 +18,7 @@ google-pasta==0.2.0
 grpcio==1.70.0
 h5py==3.12.1
 HGQ==0.2.3
-hls4ml @ git+https://github.com/fastmachinelearning/hls4ml.git@a7a39511d215fdfc2f779165a71dff08aa581563
+hls4ml @ git+https://github.com/fastmachinelearning/hls4ml.git@17331a440002ecdafe923e596f4bbb8fabcb7bf6
 idna==3.10
 Jinja2==3.1.5
 joblib==1.4.2
