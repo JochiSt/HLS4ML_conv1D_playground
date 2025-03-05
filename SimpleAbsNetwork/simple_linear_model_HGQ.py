@@ -3,17 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import keras
-from HGQ.layers import HDense, HDenseBatchNorm, HQuantize
+from HGQ.layers import HDense, HDenseBatchNorm, HQuantize, Signature
 from HGQ import ResetMinMax, FreeBOPs
 from HGQ import get_default_kq_conf, get_default_paq_conf, set_default_kq_conf, set_default_paq_conf
  
-def setupModel():
+def setupModel(fixed_bit_inout = False):
     
     paq_conf = get_default_paq_conf()
     paq_conf['skip_dims'] = 'all'
     paq_conf['rnd_strategy'] = 'fast_uniform_noise_injection'
     paq_conf['init_bw'] = 10
-
     set_default_paq_conf(paq_conf)
 
     kq_conf = get_default_kq_conf()
@@ -21,7 +20,12 @@ def setupModel():
     set_default_kq_conf(kq_conf)
     
     inputs = tf.keras.Input(shape=(1,), name="datainput")
-    x = HQuantize(beta=1.e-8)(inputs)
+    if not fixed_bit_inout:
+        # train the input bitwidth
+        x = HQuantize(beta=1.e-8)(inputs)
+    else:
+        # input is fixed to 20 bits (one integer)
+        x = Signature( bits=20, int_bits=1, keep_negative=1)(inputs)
     layer_cnt = 0
 
     x = HDense(16, beta=1.e-8, activation='relu', name="layer_%d" % (layer_cnt))(x)
@@ -32,6 +36,9 @@ def setupModel():
 
     # final layer
     outputs = HDense(1, beta=1.e-8, name="output")(x)
+    
+    if fixed_bit_inout:
+        outputs = Signature( bits=12, int_bits=1, keep_negative=1)(outputs)
 
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name="SimpleLinearStream_HGQ")
     model.summary()
@@ -94,17 +101,24 @@ def training(model, SAMPLES=1000000):
     ###########################################################################
     # Train the network
     # fully train the network
+    from keras.callbacks import LearningRateScheduler
+    from keras.experimental import CosineDecay
     
-    callbacks = [ResetMinMax(), FreeBOPs()]
+    TRAINING_EPOCHS = 50
+    
+    _sched = CosineDecay(1e-3, TRAINING_EPOCHS * 1.1)
+    sched = LearningRateScheduler(_sched)
+
+    callbacks = [sched, ResetMinMax(), FreeBOPs()]
    
     history = model.fit(
-        x_train,
-        y_train,
-        epochs=50,  # how long do we want to train
-        batch_size=500,  # how large is one batch
+        x_train,                # X training data
+        y_train,                # Y training data
+        epochs=TRAINING_EPOCHS, # how long do we want to train
+        batch_size=500,         # how large is one batch
         shuffle=True,
         validation_data=(x_validate, y_validate),
-        callbacks=callbacks
+        callbacks=callbacks     # callbacks (see above)
     )
 
     ###########################################################################
@@ -182,5 +196,5 @@ def training(model, SAMPLES=1000000):
 
 
 if __name__ == "__main__":
-    model = setupModel()
+    model = setupModel(fixed_bit_inout=True)
     training(model)
