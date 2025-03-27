@@ -20,6 +20,8 @@ from tensorflow.keras.models import load_model
 
 ################################################################################
 profiling_plots = False
+
+XILINX_PART_NO = "xc7a100t-csg324-1"
 ################################################################################
 
 model = load_model("models/SimpleLinearModel.h5")
@@ -71,7 +73,13 @@ cfg_q['IOType'] = 'io_stream'  # Must set this if using CNNs!
 cfg_q['HLSConfig'] = config
 cfg_q['KerasModel'] = model
 cfg_q['OutputDir'] = 'model_1/'
-cfg_q['XilinxPart'] = 'xcu250-figd2104-2L-e'
+cfg_q['XilinxPart'] = XILINX_PART_NO
+cfg_q['Part'] = cfg_q['XilinxPart']
+
+
+print("-----------------------------------")
+print_dict(cfg_q)
+print("-----------------------------------")
 
 ################################################################################
 # convert model to HLS one
