@@ -1,29 +1,34 @@
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 
-def generate_data(NSAMPLES = 10, NHISTO = 100, freq = 10, t_sample = 0.001):
+def generate_data(NSAMPLES = 10, NHISTO = 100, freq = [5,10], phase=[0, 2* np.pi], t_sample = 0.001):
     """
         NSAMPLES    = number of waveforms, which should be generated
         NHISTO      = number of points per waveform
-        freq        = frequency of the sine in Hz
+        freq        = frequency of the sine in Hz (low, high)
         t_sample    = sampling time = 1 / sampling frequency
     """
-       
-    np_times = np.arange( 0, (NSAMPLES + NHISTO + 1) * t_sample, t_sample)   # in seconds
     
-    np_sin = np.sin( (2*np.pi * freq) * np_times )
+    np_times = np.arange( 0, (NHISTO + 1) * t_sample, t_sample)   # in seconds
     
-    indexes = range(len(np_sin)-1)
-    indexes_windowed = sliding_window_view(indexes, NHISTO)
+    np_times_windowed = np.array([])
+    np_sin_windowed = np.array([])
+    prediction = np.array([])
     
-    np_sin_windowed = np_sin[indexes_windowed]
+    print(freq)
     
-    np_noise = np.random.normal(0, 0.05, np.size(np_sin_windowed))
-    np_noise = np_noise.reshape( np.shape(np_sin_windowed) )
-    np_sin_windowed = np_sin_windowed + np_noise
+    for N in range(NSAMPLES):
+        rnd_freq = np.random.uniform(freq[0], freq[1])
+        rnd_phase = np.random.uniform(phase[0],phase[1])
+            
+        np_sin = np.sin( (2*np.pi * rnd_freq) * np_times + rnd_phase ) + np.random.normal(0, 0.05, np.size(np_times))
     
-    np_times_windowed = np_times[indexes_windowed]
-    prediction = np_sin[ np.max(indexes_windowed, axis=1) +1 ]
+        np_times_windowed = np.append( np_times_windowed, np_times[:NHISTO] )
+        np_sin_windowed = np.append( np_sin_windowed, np_sin[:NHISTO] )
+        prediction = np.append( prediction, np_sin[ NHISTO ] )
+    
+    np_times_windowed = np_times_windowed.reshape( (NSAMPLES, NHISTO) )
+    np_sin_windowed = np_sin_windowed.reshape( (NSAMPLES, NHISTO) )
     
     return np_sin_windowed, np_times_windowed, prediction
     
@@ -62,11 +67,15 @@ def create_datasets(SAMPLES=10000, split=True):
     
 if __name__ == "__main__":
     
-    np_sin, np_times, prediction = generate_data()
-        
+    np_sin, np_times, prediction = generate_data( freq=[9.9, 10.1], phase=[0,0])
+            
     import matplotlib.pyplot as plt
     plt.clf()
     plt.title("Comparison of predictions to actual values")
+
+    print( np.shape(np_sin) )
+    print( np.shape(np_times) )
+    print( np.shape(prediction))
 
     for i, sine in enumerate(np_sin):
         plt.plot(np_times[i], sine + i/10)
