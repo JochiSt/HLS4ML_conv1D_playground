@@ -14,14 +14,17 @@ def generate_data(NSAMPLES = 10, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi
     np_times_windowed = np.array([])
     np_sin_windowed = np.array([])
     prediction = np.array([])
-    
-    print(freq)
-    
+    f = np.array([])
+    p = np.array([])
+        
     for N in range(NSAMPLES):
         rnd_freq = np.random.uniform(freq[0], freq[1])
         rnd_phase = np.random.uniform(phase[0],phase[1])
+        
+        f = np.append(f, rnd_freq)
+        p = np.append(p, rnd_phase)
             
-        np_sin = np.sin( (2*np.pi * rnd_freq) * np_times + rnd_phase ) + np.random.normal(0, 0.05, np.size(np_times))
+        np_sin = np.sin( (2*np.pi * rnd_freq) * np_times + rnd_phase ) + np.random.normal(0, 0.025, np.size(np_times))
     
         np_times_windowed = np.append( np_times_windowed, np_times[:NHISTO] )
         np_sin_windowed = np.append( np_sin_windowed, np_sin[:NHISTO] )
@@ -30,7 +33,7 @@ def generate_data(NSAMPLES = 10, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi
     np_times_windowed = np_times_windowed.reshape( (NSAMPLES, NHISTO) )
     np_sin_windowed = np_sin_windowed.reshape( (NSAMPLES, NHISTO) )
     
-    return np_sin_windowed, np_times_windowed, prediction
+    return np_sin_windowed, np_times_windowed, prediction, (f, p)
     
     
 def create_datasets(SAMPLES=10000, split=True):
@@ -41,7 +44,7 @@ def create_datasets(SAMPLES=10000, split=True):
     TEST_SPLIT = int(0.2 * SAMPLES + TRAIN_SPLIT)
 
     # generate the training data
-    y_values, _, x_values = generate_data(NSAMPLES=SAMPLES)
+    y_values, _, x_values, _ = generate_data(NSAMPLES=SAMPLES)
 
     # convert data into numpy arrays
     x_values = np.array(x_values)  # waveforms
@@ -67,7 +70,7 @@ def create_datasets(SAMPLES=10000, split=True):
     
 if __name__ == "__main__":
     
-    np_sin, np_times, prediction = generate_data( freq=[9.9, 10.1], phase=[0,0])
+    np_sin, np_times, prediction, (f,p) = generate_data( freq=[9.9, 10.1], phase=[0,0])
             
     import matplotlib.pyplot as plt
     plt.clf()
