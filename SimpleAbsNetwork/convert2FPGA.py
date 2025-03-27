@@ -3,7 +3,8 @@
 """
 
 import os
-os.environ["PATH"] = "/opt/Xilinx/Vitis_HLS/2023.2/bin/:" + os.environ["PATH"]
+os.environ["PATH"] = "/tools/Xilinx/Vitis_HLS/2024.2/bin/:" + os.environ["PATH"]
+os.environ["PATH"] = "/tools/Xilinx/Vivado/2024.2/bin/:" + os.environ["PATH"]
 
 # Convert the model to FPGA firmware with hls4ml
 # Make an hls4ml config & model
