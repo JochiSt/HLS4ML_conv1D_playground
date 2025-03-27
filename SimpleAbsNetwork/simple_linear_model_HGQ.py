@@ -42,6 +42,8 @@ def setupModel(fixed_bit_inout = False):
 
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name="SimpleLinearStream_HGQ")
     model.summary()
+    
+    keras.utils.plot_model(model, to_file='plots/HGQmodel.png', show_shapes=True)
 
     # Compile the model using the standard 'adam' optimizer and
     # the mean squared error or 'mse' loss function for regression.
