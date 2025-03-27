@@ -24,6 +24,13 @@ profiling_plots = False
 XILINX_PART_NO = "xc7a100t-csg324-1"
 ################################################################################
 
+
+################################################################################
+from simple_linear_model import create_datasets
+x_train, x_test, x_validate, y_train, y_test, y_validate = create_datasets(1000)
+x_test = np.concatenate((x_train, x_test, x_validate))
+y_test = np.concatenate((y_train, y_test, y_validate))
+
 model = load_model("models/SimpleLinearModel.h5")
 
 # create configuration for each layer
@@ -32,14 +39,6 @@ print("-----------------------------------")
 from plotting import print_dict
 print_dict(config)
 print("-----------------------------------")
-
-################################################################################
-from simple_linear_model import create_datasets
-x_train, x_test, x_validate, y_train, y_test, y_validate = create_datasets(1000)
-x_test = np.concatenate((x_train, x_test, x_validate))
-y_test = np.concatenate((y_train, y_test, y_validate))
-
-from hls4ml.model.profiling import numerical, get_ymodel_keras
 
 for layer in config['LayerName'].keys():
     config['LayerName'][layer]['Trace'] = True
@@ -88,6 +87,9 @@ hls_model = hls4ml.converters.keras_to_hls(cfg_q)
 ################################################################################
 # evaluate the performance of the neural network
 hls_model.compile()
+
+################################################################################    
+from hls4ml.model.profiling import numerical, get_ymodel_keras
 hls4ml_pred, hls4ml_trace = hls_model.trace(x_test[:1000])
 keras_trace = get_ymodel_keras(model, x_test[:1000])
 y_hls = hls_model.predict(x_test)
@@ -146,5 +148,13 @@ if profiling_plots:
     plt.show()
 
 hls4ml.utils.plot_model(hls_model, show_shapes=True, show_precision=True, to_file="plots/HLSmodel.png")
+
+hls_model.build(reset=False, csim=True, synth=True, cosim=False, validation=False, export=True, vsynth=False)
+
+vivado_report = hls4ml.report.parse_vivado_report("model_1")
+
+print_dict(vivado_report)
+
+print(vivado_report)
 
 
