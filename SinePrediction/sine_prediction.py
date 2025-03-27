@@ -164,20 +164,6 @@ def training(model, SAMPLES=100000, epochs=50):
     model.save("models/SimpleLinearModel.keras")
     model.save("models/SimpleLinearModel.h5")
 
-    ###########################################################################
-    # Test the network
-    # Plot predictions against actual values
-    predictions = model.predict(x_test)
-
-    plt.clf()
-    plt.title("Comparison of predictions to actual values")
-    plt.plot(x_test, y_test, "b.", label="Actual")
-    plt.plot(x_test, predictions, "r.", label="Prediction")
-    plt.legend(framealpha=1)
-    plt.savefig("plots/" + model.name + "_prediction.png")
-    plt.show()
-
-
 def plot_data(x, y, y_pred=None):
     plt.clf()
     plt.title("Comparison of predictions to actual values")
