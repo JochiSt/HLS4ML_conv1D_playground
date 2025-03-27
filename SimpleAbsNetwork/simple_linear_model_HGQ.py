@@ -88,7 +88,7 @@ def create_datasets(SAMPLES=10000):
     return x_train, x_test, x_validate, y_train, y_test, y_validate
 
 
-def training(model, SAMPLES=1000000):
+def training(model, SAMPLES=1000000, TRAINING_EPOCHS = 50):
     x_train, x_test, x_validate, y_train, y_test, y_validate = create_datasets(SAMPLES)
 
     # Double check that our splits add up correctly
@@ -105,9 +105,7 @@ def training(model, SAMPLES=1000000):
     # fully train the network
     from keras.callbacks import LearningRateScheduler
     from keras.experimental import CosineDecay
-    
-    TRAINING_EPOCHS = 50
-    
+        
     _sched = CosineDecay(1e-3, TRAINING_EPOCHS * 1.1)
     sched = LearningRateScheduler(_sched)
 
@@ -195,8 +193,19 @@ def training(model, SAMPLES=1000000):
     plt.legend(framealpha=1)
     plt.savefig("plots/" + proxy.name + "HGQ_proxy_prediction.png")
     plt.show()
-
+    
+def getLayerBitWidth(model):
+    """
+        get the bit width from each layer
+    """
+    config = model.get_config()
+    for layer in config['layers']:
+        print(layer['name'])
+        
+        act_bw = model.get_layer(layer['name']).act_bw.numpy()
+        print(act_bw)
 
 if __name__ == "__main__":
     model = setupModel(fixed_bit_inout=True)
-    training(model)
+    training(model, TRAINING_EPOCHS=50)
+    #getLayerBitWidth(model)
