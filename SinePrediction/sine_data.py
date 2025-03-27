@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 
-def generate_data(NSAMPLES = 10, NHISTO = 100, freq = [5,10], phase=[0, 2* np.pi], t_sample = 0.001):
+def generate_data(NSAMPLES = 10, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi], t_sample = 0.001):
     """
         NSAMPLES    = number of waveforms, which should be generated
         NHISTO      = number of points per waveform
