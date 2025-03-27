@@ -11,6 +11,11 @@ def generate_data(NSAMPLES = 10, NHISTO = 100, freq = 10, t_sample = 0.001):
     indexes_windowed = sliding_window_view(indexes, NHISTO)
     
     np_sin_windowed = np_sin[indexes_windowed]
+    
+    np_noise = np.random.normal(0, 0.05, np.size(np_sin_windowed))
+    np_noise = np_noise.reshape( np.shape(np_sin_windowed) )
+    np_sin_windowed = np_sin_windowed + np_noise
+    
     np_times_windowed = np_times[indexes_windowed]
     prediction = np_sin[ np.max(indexes_windowed, axis=1) +1 ]
     
