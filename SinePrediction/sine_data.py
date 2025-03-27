@@ -2,6 +2,12 @@ import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 
 def generate_data(NSAMPLES = 10, NHISTO = 100, freq = 10, t_sample = 0.001):
+    """
+        NSAMPLES    = number of waveforms, which should be generated
+        NHISTO      = number of points per waveform
+        freq        = frequency of the sine in Hz
+        t_sample    = sampling time = 1 / sampling frequency
+    """
        
     np_times = np.arange( 0, (NSAMPLES + NHISTO + 1) * t_sample, t_sample)   # in seconds
     
