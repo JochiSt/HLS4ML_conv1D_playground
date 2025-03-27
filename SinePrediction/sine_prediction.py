@@ -54,11 +54,11 @@ def setupModel():
 
     x = ResNetBlockConv1D(inputs)
     x = ResNetBlockConv1D(x)
-    x = ResNetBlockConv1D(x)
+    #x = ResNetBlockConv1D(x)
 
     x = tf.keras.layers.Flatten()(x)
 
-    x = tf.keras.layers.Dense(16, name="dense_%d" % (layer_cnt))(x)
+    x = tf.keras.layers.Dense(32, name="dense_%d" % (layer_cnt))(x)
     layer_cnt += 1
     x = tf.keras.layers.Activation("relu", name="activation_%d"%(layer_cnt))(x)
 
