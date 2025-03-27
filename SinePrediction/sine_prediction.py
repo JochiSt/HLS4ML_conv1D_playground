@@ -81,7 +81,7 @@ def setupModel():
 
     return model
 
-def training(model, SAMPLES=100000):
+def training(model, SAMPLES=100000, epochs=50):
     y_train, y_test, y_validate, x_train, x_test, x_validate = create_datasets(SAMPLES)
 
     # Double check that our splits add up correctly
@@ -106,7 +106,7 @@ def training(model, SAMPLES=100000):
     history = model.fit(
         x_train,
         y_train,
-        epochs=50,       # how long do we want to train
+        epochs=epochs,   # how long do we want to train
         batch_size=500,  # how large is one batch
         shuffle=True,
         validation_data=(x_validate, y_validate),
@@ -189,38 +189,34 @@ def plot_data(x, y, y_pred=None):
         if y_pred is not None:
             plt.plot(len(x_dat) + 1, y_pred[i], "r.", label="Prediction")
             
-    plt.legend(framealpha=1)
+    #plt.legend(framealpha=1)
     plt.savefig("plots/evaluation_data.png")
     plt.show()
     
-
 if __name__ == "__main__":
-    ############################################################################
-    # create model
-    model = setupModel()
+    train = False
     
+    train = True
     
-    ############################################################################
-    # train model
-    training(model)
-    
+    if train:
+        ########################################################################
+        # create model
+        model = setupModel()
+        
+        
+        ########################################################################
+        # train model
+        training(model, SAMPLES=10000, epochs=2)
+        
+    else:
+        model = tf.keras.models.load_model('models/SimpleLinearModel.keras')
+
     ############################################################################
     # evaluate model and create some nice plots
-    y_train, y_test, y_validate, x_train, x_test, x_validate = create_datasets(5, split=False)
+    _, _, y_validate, _, _, x_validate = create_datasets(5, split=False)
 
-    x_train     = x_train.reshape(      (np.shape(x_train)[0]     ,  np.shape(x_train)[1]    ,1 ))
-    x_test      = x_test.reshape(       (np.shape(x_test)[0]      ,  np.shape(x_test)[1]     ,1 ))
-    x_validate  = x_validate.reshape(   (np.shape(x_validate)[0]  ,  np.shape(x_validate)[1] ,1 ))
+    x_validate = x_validate.reshape(   (np.shape(x_validate)[0]  ,  np.shape(x_validate)[1] ,1 ))
     
-    print(x_train)
-    print(y_train)
-
-    #model = tf.keras.models.load_model('models/SimpleLinearModel.keras')
-    
-    #predictions = model.predict(x_test[:5])
-    
-    #print(predictions)
-    
-    #plot_data( x_test[:2], y_test[:2], predictions)
-    
-    #predict(model)
+    predictions = model.predict(x_validate)
+        
+    plot_data( x_validate, y_validate, predictions)
