@@ -192,7 +192,7 @@ if __name__ == "__main__":
         
         ########################################################################
         # train model
-        training(model, SAMPLES=10000, epochs=2)
+        training(model, SAMPLES=10000, epochs=50)
         
     else:
         model = tf.keras.models.load_model('models/SimpleLinearModel.keras')
