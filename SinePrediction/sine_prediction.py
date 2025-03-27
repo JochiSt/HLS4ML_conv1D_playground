@@ -5,7 +5,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-from sine_data import create_datasets
+from sine_data import create_datasets, generate_data
 
 def ResNetBlockConv1D(x,
                     n_filter = 16,
@@ -54,7 +54,7 @@ def setupModel():
 
     x = ResNetBlockConv1D(inputs)
     x = ResNetBlockConv1D(x)
-    #x = ResNetBlockConv1D(x)
+    x = ResNetBlockConv1D(x)
 
     x = tf.keras.layers.Flatten()(x)
 
@@ -82,6 +82,7 @@ def setupModel():
     return model
 
 def training(model, SAMPLES=100000, epochs=50):
+    print("Generating data ...")
     y_train, y_test, y_validate, x_train, x_test, x_validate = create_datasets(SAMPLES)
 
     # Double check that our splits add up correctly
@@ -199,10 +200,31 @@ if __name__ == "__main__":
 
     ############################################################################
     # evaluate model and create some nice plots
-    _, _, y_validate, _, _, x_validate = create_datasets(5, split=False)
-
-    x_validate = x_validate.reshape(   (np.shape(x_validate)[0]  ,  np.shape(x_validate)[1] ,1 ))
     
-    predictions = model.predict(x_validate)
+    np_sin_windowed, np_times_windowed, prediction, (f,p) = generate_data(NSAMPLES = 1000, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi], t_sample = 0.001)
+
+    np_sin_windowed = np_sin_windowed.reshape(   (np.shape(np_sin_windowed)[0]  ,  np.shape(np_sin_windowed)[1] ,1 ))
+    
+    predictions = model.predict(np_sin_windowed)
+    predictions = predictions.reshape( (np.size(predictions)))
         
-    plot_data( x_validate, y_validate, predictions)
+    #plot_data( np_sin_windowed[:10], prediction[:10], predictions[:10])
+    
+    plt.clf()
+    plt.title("Comparison of predictions to actual values")
+    
+    difference = prediction - predictions
+       
+    plt.plot(f, difference, ".", label="difference")            
+    #plt.legend(framealpha=1)
+    plt.savefig("plots/difference_vs_f.png")
+    plt.show()
+    
+    plt.clf()
+    plt.title("Comparison of predictions to actual values")
+           
+    plt.plot(p, difference, ".", label="difference")            
+    #plt.legend(framealpha=1)
+    plt.savefig("plots/difference_vs_p.png")
+    plt.show()
+    
