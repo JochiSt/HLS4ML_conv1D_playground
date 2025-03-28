@@ -245,30 +245,24 @@ if __name__ == "__main__":
     predictions = predictions.reshape( (np.size(predictions)))
         
     plot_data( np_sin_windowed[:10], prediction[:10], predictions[:10], model_name = model.name)
+
+    difference = prediction - predictions
     
     plt.clf()
     plt.title("Comparison of predictions to actual values")
-    
-    difference = prediction - predictions
-       
     plt.plot(f, difference, ".", label="difference")            
-    #plt.legend(framealpha=1)
     plt.savefig("plots/"+model.name+"_difference_vs_f.png")
     plt.show()
     
     plt.clf()
     plt.title("Comparison of predictions to actual values")
-           
     plt.plot(p, difference, ".", label="difference")            
-    #plt.legend(framealpha=1)
     plt.savefig("plots/"+model.name+"_difference_vs_p.png")
     plt.show()    
 
     plt.clf()
     plt.title("Comparison of predictions to actual values")
-           
     plt.plot(a, difference, ".", label="difference")            
-    #plt.legend(framealpha=1)
     plt.savefig("plots/"+model.name+"_difference_vs_a.png")
     plt.show()
     
