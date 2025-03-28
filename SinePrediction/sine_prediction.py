@@ -128,7 +128,7 @@ def training(model, SAMPLES=100000, epochs=50):
     # fully train the network
     from keras.callbacks import LearningRateScheduler
     from keras.experimental import CosineDecay    
-    _sched = CosineDecay(1e-3, epochs * 1.1)
+    _sched = CosineDecay(1e-2, epochs * 1.02)
     sched = LearningRateScheduler(_sched)
 
     callbacks = [sched]    
