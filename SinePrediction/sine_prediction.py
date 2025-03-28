@@ -7,64 +7,86 @@ import matplotlib.pyplot as plt
 
 from sine_data import create_datasets, generate_data
 
-def ResNetBlockConv1D(x,
-                    n_filter = 16,
-                    kernel_size = 3,
-                    padding = "same",
-                    conv_activation = "relu",
-                    kernel_initializer = "glorot_uniform",
-                    ):
-    r"""
-    Basic ResNetBlock implementation without Batchnormalization.
-
-    Args:
-      x: A keras layers object. e.g. output of tf.keras.layers.Conv1D.
-      n_filter: number of convolution filters
-      kernel_size: An integer or tuple/list of a single integer, specifying the length of the 1D convolution window.
-      padding: One of "valid", "same" or "causal" (case-insensitive). "valid" means no padding. "same" results in padding with zeros evenly to the left/right or up/down of the input such that output has the same height/width dimension as the input. "causal" results in causal (dilated) convolutions, e.g. output[t] does not depend on input[t+1:].
-      conv_activation: activation function of the first convolution layer in the block
-      kernel_initializer: initializer for the weights
-      activation: activation function which is applied after adding identity to conv block
-    Returns:
-      A keras layer.
-    """
-
-    #two convolution layers in ResNetBlock
-    fx = tf.keras.layers.Conv1D(n_filter,
-                              kernel_size,
-                              activation = conv_activation,
-                              use_bias = True,
-                              strides=1,
-                              padding = padding,
-                              kernel_initializer = kernel_initializer)(x)
-    fx = tf.keras.layers.Conv1D(n_filter,
-                              kernel_size,
-                              strides=1,
-                              use_bias = False,
-                              padding = padding,
-                              kernel_initializer = kernel_initializer)(fx)
-
-    x = fx
-    return x
-
 
 def setupModel():
     inputs = tf.keras.Input(shape=(100,1,), name="datainput")
     layer_cnt = 0
 
-    x = ResNetBlockConv1D(inputs)
-    x = ResNetBlockConv1D(x)
-    x = ResNetBlockConv1D(x)
+    x = tf.keras.layers.Dense(100, name="dense_%d" % (layer_cnt))(inputs)
+    layer_cnt += 1
+    
+    x = tf.keras.layers.Conv1D(32,
+                              3,
+                              use_bias = True,
+                              strides=1,
+                              padding = "same",
+                              kernel_initializer = "glorot_uniform",
+                              name="conv1d_%d"%(layer_cnt)
+                              )(x)
+    x = tf.keras.layers.Activation("relu", name="activation_%d"%(layer_cnt))(x)    
+    layer_cnt += 1
+    
+    x = tf.keras.layers.Conv1D(32,
+                              3,
+                              strides=1,
+                              use_bias = False,
+                              padding = "same",
+                              kernel_initializer = "glorot_uniform",
+                              name="conv1d_%d"%(layer_cnt)
+                              )(x)
+    layer_cnt += 1
 
+    x = tf.keras.layers.Conv1D(16,
+                              3,
+                              use_bias = True,
+                              strides=1,
+                              padding = "same",
+                              kernel_initializer = "glorot_uniform",
+                              name="conv1d_%d"%(layer_cnt)
+                              )(x)
+    x = tf.keras.layers.Activation("relu", name="activation_%d"%(layer_cnt))(x)    
+    layer_cnt += 1
+    
+    x = tf.keras.layers.Conv1D(16,
+                              3,
+                              strides=1,
+                              use_bias = False,
+                              padding = "same",
+                              kernel_initializer = "glorot_uniform",
+                              name="conv1d_%d"%(layer_cnt)
+                              )(x)
+    layer_cnt += 1
+    
+    x = tf.keras.layers.Conv1D(8,
+                              3,
+                              use_bias = True,
+                              strides=1,
+                              padding = "same",
+                              kernel_initializer = "glorot_uniform",
+                              name="conv1d_%d"%(layer_cnt)
+                              )(x)
+    x = tf.keras.layers.Activation("relu", name="activation_%d"%(layer_cnt))(x)    
+    layer_cnt += 1
+    
+    x = tf.keras.layers.Conv1D(8,
+                              3,
+                              strides=1,
+                              use_bias = False,
+                              padding = "same",
+                              kernel_initializer = "glorot_uniform",
+                              name="conv1d_%d"%(layer_cnt)
+                              )(x)
+    layer_cnt += 1    
+    
     x = tf.keras.layers.Flatten()(x)
 
     x = tf.keras.layers.Dense(32, name="dense_%d" % (layer_cnt))(x)
-    layer_cnt += 1
     x = tf.keras.layers.Activation("relu", name="activation_%d"%(layer_cnt))(x)
+    layer_cnt += 1
 
     x = tf.keras.layers.Dense(16, name="dense_%d" % (layer_cnt))(x)
-    layer_cnt += 1
     x = tf.keras.layers.Activation("relu", name="activation_%d"%(layer_cnt))(x)
+    layer_cnt += 1
 
     # final layer
     outputs = tf.keras.layers.Dense(1, name="output")(x)
@@ -72,12 +94,12 @@ def setupModel():
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name="SinePrediction")
     model.summary()
     
-    tf.keras.utils.plot_model(model, to_file="plots/sine_prediction.png", show_shapes=True)
+    tf.keras.utils.plot_model(model, to_file="plots/"+model.name+".png", show_shapes=True)
 
     # Compile the model using the standard 'adam' optimizer and
     # the mean squared error or 'mse' loss function for regression.
     # the mean absolute error or 'mae' is also used as a metric
-    model.compile(optimizer=Adam(learning_rate=5e-3), loss="mse", metrics=["mae", "mse"])
+    model.compile(optimizer=Adam(learning_rate=1e-3), loss="mse", metrics=["mae", "mse"])
 
     return model
 
@@ -104,9 +126,17 @@ def training(model, SAMPLES=100000, epochs=50):
     ###########################################################################
     # Train the network
     # fully train the network
+    from keras.callbacks import LearningRateScheduler
+    from keras.experimental import CosineDecay    
+    _sched = CosineDecay(1e-3, epochs * 1.1)
+    sched = LearningRateScheduler(_sched)
+
+    callbacks = [sched]    
+    
     history = model.fit(
         x_train,
         y_train,
+        callbacks=callbacks,
         epochs=epochs,   # how long do we want to train
         batch_size=500,  # how large is one batch
         shuffle=True,
@@ -162,10 +192,10 @@ def training(model, SAMPLES=100000, epochs=50):
     plt.show()
 
     # save network
-    model.save("models/SimpleLinearModel.keras")
-    model.save("models/SimpleLinearModel.h5")
+    model.save("models/"+model.name+".keras")
+    model.save("models/"+model.name+".h5")
 
-def plot_data(x, y, y_pred=None):
+def plot_data(x, y, y_pred=None, model_name=""):
     plt.clf()
     plt.title("Comparison of predictions to actual values")
     
@@ -177,7 +207,7 @@ def plot_data(x, y, y_pred=None):
             plt.plot(len(x_dat) + 1, y_pred[i], "r.", label="Prediction")
             
     #plt.legend(framealpha=1)
-    plt.savefig("plots/evaluation_data.png")
+    plt.savefig("plots/"+model_name+"_evaluation.png")
     plt.show()
     
 if __name__ == "__main__":
@@ -201,14 +231,20 @@ if __name__ == "__main__":
     ############################################################################
     # evaluate model and create some nice plots
     
-    np_sin_windowed, np_times_windowed, prediction, (f,p) = generate_data(NSAMPLES = 1000, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi], t_sample = 0.001)
+    np_sin_windowed, np_times_windowed, prediction, (f,p,a) = generate_data(NSAMPLES = 10000, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi], t_sample = 0.001)
+    
+    np_sin_windowed /= 2
+    np_sin_windowed += 0.5
+    
+    prediction /= 2
+    prediction += 0.5
 
     np_sin_windowed = np_sin_windowed.reshape(   (np.shape(np_sin_windowed)[0]  ,  np.shape(np_sin_windowed)[1] ,1 ))
     
     predictions = model.predict(np_sin_windowed)
     predictions = predictions.reshape( (np.size(predictions)))
         
-    #plot_data( np_sin_windowed[:10], prediction[:10], predictions[:10])
+    plot_data( np_sin_windowed[:10], prediction[:10], predictions[:10], model_name = model.name)
     
     plt.clf()
     plt.title("Comparison of predictions to actual values")
@@ -217,7 +253,7 @@ if __name__ == "__main__":
        
     plt.plot(f, difference, ".", label="difference")            
     #plt.legend(framealpha=1)
-    plt.savefig("plots/difference_vs_f.png")
+    plt.savefig("plots/"+model.name+"_difference_vs_f.png")
     plt.show()
     
     plt.clf()
@@ -225,6 +261,14 @@ if __name__ == "__main__":
            
     plt.plot(p, difference, ".", label="difference")            
     #plt.legend(framealpha=1)
-    plt.savefig("plots/difference_vs_p.png")
+    plt.savefig("plots/"+model.name+"_difference_vs_p.png")
+    plt.show()    
+
+    plt.clf()
+    plt.title("Comparison of predictions to actual values")
+           
+    plt.plot(a, difference, ".", label="difference")            
+    #plt.legend(framealpha=1)
+    plt.savefig("plots/"+model.name+"_difference_vs_a.png")
     plt.show()
     
