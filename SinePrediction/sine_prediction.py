@@ -197,6 +197,8 @@ def training(model, SAMPLES=100000, epochs=50, addcallbacks=[]):
     # save network
     model.save("models/"+model.name+".keras")
     model.save("models/"+model.name+".h5")
+    
+    return model, (x_train, y_train)
 
 def plot_data(x, y, y_pred=None, model_name=""):
     plt.clf()
@@ -226,7 +228,7 @@ if __name__ == "__main__":
         
         ########################################################################
         # train model
-        training(model, SAMPLES=10000, epochs=50)
+        model, (x_train, y_train) = training(model, SAMPLES=10000, epochs=50)
         
     else:
         model = tf.keras.models.load_model('models/SimpleLinearModel.keras')
