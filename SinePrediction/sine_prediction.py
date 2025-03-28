@@ -12,8 +12,10 @@ def setupModel():
     inputs = tf.keras.Input(shape=(100,1,), name="datainput")
     layer_cnt = 0
 
-    x = tf.keras.layers.Dense(100, name="dense_%d" % (layer_cnt))(inputs)
-    layer_cnt += 1
+    #x = tf.keras.layers.Dense(100, name="dense_%d" % (layer_cnt))(inputs)
+    #layer_cnt += 1
+    
+    x = inputs
     
     x = tf.keras.layers.Conv1D(32,
                               3,
