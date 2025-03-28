@@ -105,7 +105,7 @@ def setupModel():
 
     return model
 
-def training(model, SAMPLES=100000, epochs=50):
+def training(model, SAMPLES=100000, epochs=50, addcallbacks=[]):
     print("Generating data ...")
     y_train, y_test, y_validate, x_train, x_test, x_validate = create_datasets(SAMPLES)
 
@@ -134,6 +134,7 @@ def training(model, SAMPLES=100000, epochs=50):
     sched = LearningRateScheduler(_sched)
 
     callbacks = [sched]    
+    callbacks.append(addcallbacks)
     
     history = model.fit(
         x_train,
