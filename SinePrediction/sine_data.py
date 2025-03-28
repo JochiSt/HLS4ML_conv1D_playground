@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.lib.stride_tricks import sliding_window_view
 
-def generate_data(NSAMPLES = 10, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi], t_sample = 0.001):
+def generate_data(NSAMPLES = 10, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi], ampl=[0.5,1], t_sample = 0.001):
     """
         NSAMPLES    = number of waveforms, which should be generated
         NHISTO      = number of points per waveform
@@ -16,15 +16,18 @@ def generate_data(NSAMPLES = 10, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi
     prediction = np.array([])
     f = np.array([])
     p = np.array([])
+    a = np.array([])
         
     for N in range(NSAMPLES):
         rnd_freq = np.random.uniform(freq[0], freq[1])
         rnd_phase = np.random.uniform(phase[0],phase[1])
+        rnd_ampl = np.random.uniform(ampl[0], ampl[1])
         
         f = np.append(f, rnd_freq)
         p = np.append(p, rnd_phase)
+        a = np.append(a, rnd_ampl)
             
-        np_sin = np.sin( (2*np.pi * rnd_freq) * np_times + rnd_phase ) + np.random.normal(0, 0.025, np.size(np_times))
+        np_sin = rnd_ampl * np.sin( (2*np.pi * rnd_freq) * np_times + rnd_phase ) + np.random.normal(0, 0.025, np.size(np_times))
     
         np_times_windowed = np.append( np_times_windowed, np_times[:NHISTO] )
         np_sin_windowed = np.append( np_sin_windowed, np_sin[:NHISTO] )
@@ -33,7 +36,7 @@ def generate_data(NSAMPLES = 10, NHISTO = 100, freq = [2,20], phase=[0, 2* np.pi
     np_times_windowed = np_times_windowed.reshape( (NSAMPLES, NHISTO) )
     np_sin_windowed = np_sin_windowed.reshape( (NSAMPLES, NHISTO) )
     
-    return np_sin_windowed, np_times_windowed, prediction, (f, p)
+    return np_sin_windowed, np_times_windowed, prediction, (f, p, a)
     
     
 def create_datasets(SAMPLES=10000, split=True):
@@ -49,6 +52,13 @@ def create_datasets(SAMPLES=10000, split=True):
     # convert data into numpy arrays
     x_values = np.array(x_values)  # waveforms
     y_values = np.array(y_values)  # parameters
+    
+    # normalize values
+    x_values /= 2
+    x_values += 0.5   
+    
+    y_values /= 2
+    y_values += 0.5
 
     # Use np.split to chop our data into three parts.
     # The second argument to np.split is an array of indices where the data
@@ -70,7 +80,7 @@ def create_datasets(SAMPLES=10000, split=True):
     
 if __name__ == "__main__":
     
-    np_sin, np_times, prediction, (f,p) = generate_data( freq=[9.9, 10.1], phase=[0,0])
+    np_sin, np_times, prediction, (f,p,a) = generate_data( freq=[9.9, 10.1], phase=[0,0])
             
     import matplotlib.pyplot as plt
     plt.clf()
