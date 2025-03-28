@@ -17,7 +17,7 @@ def setupModel():
     
     x = inputs
     
-    x = tf.keras.layers.Conv1D(32,
+    x = tf.keras.layers.Conv1D(8,
                               3,
                               use_bias = True,
                               strides=1,
@@ -28,7 +28,7 @@ def setupModel():
     x = tf.keras.layers.Activation("relu", name="activation_%d"%(layer_cnt))(x)    
     layer_cnt += 1
     
-    x = tf.keras.layers.Conv1D(32,
+    x = tf.keras.layers.Conv1D(8,
                               3,
                               strides=1,
                               use_bias = False,
@@ -38,7 +38,7 @@ def setupModel():
                               )(x)
     layer_cnt += 1
 
-    x = tf.keras.layers.Conv1D(16,
+    x = tf.keras.layers.Conv1D(8,
                               3,
                               use_bias = True,
                               strides=1,
@@ -49,7 +49,7 @@ def setupModel():
     x = tf.keras.layers.Activation("relu", name="activation_%d"%(layer_cnt))(x)    
     layer_cnt += 1
     
-    x = tf.keras.layers.Conv1D(16,
+    x = tf.keras.layers.Conv1D(8,
                               3,
                               strides=1,
                               use_bias = False,
