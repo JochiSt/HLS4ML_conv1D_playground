@@ -231,7 +231,7 @@ if __name__ == "__main__":
         model, (x_train, y_train) = training(model, SAMPLES=10000, epochs=50)
         
     else:
-        model = tf.keras.models.load_model('models/SimpleLinearModel.keras')
+        model = tf.keras.models.load_model('models/SinePrediction.keras')
 
     ############################################################################
     # evaluate model and create some nice plots
