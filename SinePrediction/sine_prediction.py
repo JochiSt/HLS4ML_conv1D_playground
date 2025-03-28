@@ -107,7 +107,7 @@ def setupModel():
 
 def training(model, SAMPLES=100000, epochs=50, addcallbacks=[]):
     print("Generating data ...")
-    y_train, y_test, y_validate, x_train, x_test, x_validate = create_datasets(SAMPLES)
+    y_train, _, y_validate, x_train, _, x_validate = create_datasets(SAMPLES)
 
     # Double check that our splits add up correctly
     #assert (len(x_train) + len(x_validate) + len(x_test)) == SAMPLES
@@ -115,11 +115,9 @@ def training(model, SAMPLES=100000, epochs=50, addcallbacks=[]):
     print("Points using for:")
     print(" - Training:  ", len(x_train))
     print(" - Validation:", len(x_validate))
-    print(" - Testing:   ", len(x_test))
     print("in total:     ", SAMPLES)
 
     x_train     = x_train.reshape(      (np.shape(x_train)[0]    , np.shape(x_train)[1]   ,1 ) )
-    x_test      = x_test.reshape(       (np.shape(x_test)[0]     , np.shape(x_test)[1]    ,1 ) )
     x_validate  = x_validate.reshape(   (np.shape(x_validate)[0] , np.shape(x_validate)[1],1 ) )
     
     print("X Train", np.shape(x_train))
